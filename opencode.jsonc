@@ -1,0 +1,104 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "@mohak34/opencode-notifier@latest",
+    // plan-post-approval is loaded explicitly with its options here (not auto-discovered),
+    // so the handoff knob never reaches a provider request body (fixes GLM/Vertex/Fireworks
+    // "Extra inputs are not permitted" errors).
+    ["./plugin-src/plan-post-approval.ts", { "plan_post_approval_handoff_agent": "orchestrator" }],
+  ],
+
+  "provider": {
+    "opencode": {},
+    "deepseek": {
+      "models": {
+        "deepseek-v4-pro": {
+          "reasoningEffort": "max",
+        },
+        "deepseek-v4-flash": {
+          "reasoningEffort": "max",
+        },
+      },
+    },
+  },
+
+  "default_agent": "orchestrator",
+  "share": "manual",
+  "autoupdate": true,
+
+  // Minimal workspace baseline; per-agent tool policy lives in agents/<id>.md frontmatter. If you want it more permissive you can copy to your project workspace ./opencode/opencode.jsonc with "allow" instead
+  "permission": {
+    "bash": {
+      "*": "ask",
+    },
+    "edit": "ask",
+  },
+
+  // Strong models for the primary agents
+  "agent": {
+    "build": {
+      "model": "opencode-go/deepseek-v4-pro",
+    },
+
+    "plan": {
+      "model": "opencode-go/deepseek-v4-pro",
+    },
+
+    "orchestrator": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "temperature": 0.2,
+    },
+
+    "plan-runner": {
+      // stick with pro here aswell if you accept the speed vs quality tradeoff
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.2,
+    },
+
+    // Cheap model for subagents (defined in agents/<id>.md)
+    "code-explorer": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.2,
+    },
+
+    "code-executor": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.1,
+    },
+
+    "test-verifier": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.1,
+    },
+
+    "spec-critic": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.4,
+    },
+
+    "security-reviewer": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.1,
+    },
+
+    "docs-reviewer": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.1,
+    },
+
+    "code-reviewer": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.1,
+    },
+
+    "api-docs-researcher": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.1,
+    },
+
+    "host-security-investigator": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "temperature": 0.1,
+    },
+  },
+}
